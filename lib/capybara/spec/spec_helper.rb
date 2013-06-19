@@ -2,7 +2,6 @@ require "rspec"
 require "capybara"
 require "capybara/rspec" # Required here instead of in rspec_spec to avoid RSpec deprecation warning
 require "capybara/spec/test_app"
-require "capybara/spec/spec_helper"
 require "nokogiri"
 
 module Capybara
@@ -79,7 +78,7 @@ module Capybara
     end
 
     def extract_results(session)
-      YAML.load Nokogiri::HTML(session.body).xpath("//pre[@id='results']").first.text.lstrip
+      YAML.load Nokogiri::HTML(session.body).xpath("//pre[@id='results']").first.inner_html.lstrip
     end
   end
 end

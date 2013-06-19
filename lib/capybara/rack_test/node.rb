@@ -27,7 +27,7 @@ class Capybara::RackTest::Node < Capybara::Driver::Node
     elsif input_field?
       set_input(value)
     elsif textarea?
-      native.content = value.to_s
+      native.content = value.to_s unless self[:readonly]
     end
   end
 
@@ -52,7 +52,8 @@ class Capybara::RackTest::Node < Capybara::Driver::Node
       driver.follow(method, self[:href].to_s)
     elsif (tag_name == 'input' and %w(submit image).include?(type)) or
         ((tag_name == 'button') and type.nil? or type == "submit")
-      Capybara::RackTest::Form.new(driver, form).submit(self)
+      associated_form = form
+      Capybara::RackTest::Form.new(driver, associated_form).submit(self) if associated_form
     end
   end
 
@@ -73,7 +74,11 @@ class Capybara::RackTest::Node < Capybara::Driver::Node
   end
 
   def disabled?
-    string_node.disabled?
+    if %w(option optgroup).include? tag_name
+      string_node.disabled? || find_xpath("parent::*")[0].disabled?
+    else
+      string_node.disabled?
+    end
   end
 
   def path
@@ -83,11 +88,11 @@ class Capybara::RackTest::Node < Capybara::Driver::Node
   def find_xpath(locator)
     native.xpath(locator).map { |n| self.class.new(driver, n) }
   end
-  
-  def find_css(locator)    
+
+  def find_css(locator)
     native.css(locator, Capybara::RackTest::CSSHandlers.new).map { |n| self.class.new(driver, n) }
   end
-  
+
   def ==(other)
     native == other.native
   end
@@ -149,7 +154,7 @@ private
     if text_or_password? && attribute_is_not_blank?(:maxlength)
       # Browser behavior for maxlength="0" is inconsistent, so we stick with
       # Firefox, allowing no input
-      value = value[0...self[:maxlength].to_i]
+      value = value.to_s[0...self[:maxlength].to_i]
     end
     if Array === value #Assert multiple attribute is present
       value.each do |v|
@@ -160,7 +165,7 @@ private
       end
       native.remove
     else
-      native['value'] = value.to_s
+      native['value'] = value.to_s unless self[:readonly]
     end
   end
 

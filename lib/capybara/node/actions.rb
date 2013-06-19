@@ -19,7 +19,7 @@ module Capybara
       # Finds a link by id or text and clicks it. Also looks at image
       # alt text inside the link.
       #
-      # @param [String] locator      Text, id or text of link
+      # @param [String] locator      Text or id of link
       # @param options
       # @option options [String] :href    The value the href attribute must be
       #
@@ -44,8 +44,8 @@ module Capybara
       #
       #     page.fill_in 'Name', :with => 'Bob'
       #
-      # @param [String] locator           Which field to fill in
-      # @param [Hash{:with => String}]    The value to fill in
+      # @param [String] locator                 Which field to fill in
+      # @param [Hash{:with => String}] options  The value to fill in
       #
       def fill_in(locator, options={})
         raise "Must pass a hash containing 'with'" if not options.is_a?(Hash) or not options.has_key?(:with)
@@ -100,8 +100,8 @@ module Capybara
       #
       #     page.select 'March', :from => 'Month'
       #
-      # @param [String] value             Which option to select
-      # @param [Hash{:from => String}]    The id, name or label of the select box
+      # @param [String] value                   Which option to select
+      # @param [Hash{:from => String}] options  The id, name or label of the select box
       #
       def select(value, options={})
         if options.has_key?(:from)
@@ -120,8 +120,8 @@ module Capybara
       #
       #     page.unselect 'March', :from => 'Month'
       #
-      # @param [String] value             Which option to unselect
-      # @param [Hash{:from => String}]    The id, name or label of the select box
+      # @param [String] value                   Which option to unselect
+      # @param [Hash{:from => String}] options  The id, name or label of the select box
       #
       def unselect(value, options={})
         if options.has_key?(:from)

@@ -23,19 +23,19 @@ GitHub): http://groups.google.com/group/ruby-capybara
 
 ## Setup
 
-To install, type
+Capybara requires Ruby 1.9.3 or later. To install, type:
 
 ```bash
 gem install capybara
 ```
 
-If you are using Rails, add this line to your test helper file:
+If the application that you are testing is a Rails app, add this line to your test helper file:
 
 ```ruby
 require 'capybara/rails'
 ```
 
-If you are not using Rails, set Capybara.app to your rack app:
+If the application that you are testing is a Rack app, but not Rails, set Capybara.app to your Rack app:
 
 ```ruby
 Capybara.app = MyRackApp
@@ -96,7 +96,7 @@ Capybara with `:type => :feature`.
 You can now write your specs like so:
 
 ```ruby
-describe "the signup process", :type => :feature do
+describe "the signin process", :type => :feature do
   before :each do
     User.make(:email => 'user@example.com', :password => 'caplin')
   end
@@ -108,7 +108,7 @@ describe "the signup process", :type => :feature do
       fill_in 'Password', :with => 'password'
     end
     click_link 'Sign in'
-    page.should have_content 'Success'
+    expect(page).to have_content 'Success'
   end
 end
 ```
@@ -127,7 +127,7 @@ end
 Finally, Capybara also comes with a built in DSL for creating descriptive acceptance tests:
 
 ```ruby
-feature "Signing up" do
+feature "Signing in" do
   background do
     User.make(:email => 'user@example.com', :password => 'caplin')
   end
@@ -139,7 +139,7 @@ feature "Signing up" do
       fill_in 'Password', :with => 'caplin'
     end
     click_link 'Sign in'
-    page.should have_content 'Success'
+    expect(page).to have_content 'Success'
   end
 
   given(:other_user) { User.make(:email => 'other@example.com', :password => 'rous') }
@@ -151,7 +151,7 @@ feature "Signing up" do
       fill_in 'Password', :with => other_user.password
     end
     click_link 'Sign in'
-    page.should have_content 'Invalid email or password'
+    expect(page).to have_content 'Invalid email or password'
   end
 end
 ```
@@ -162,36 +162,14 @@ end
 
 ## Using Capybara with Test::Unit
 
-* If you are using Rails, add `database_cleaner` to your Gemfile:
-
-    ```ruby
-    group :test do
-      gem 'database_cleaner'
-    end
-    ```
-
-    Then add the following code in your `test_helper.rb` file to make
-    Capybara available in all test cases deriving from
+* If you are using Rails, add the following code in your `test_helper.rb`
+    file to make Capybara available in all test cases deriving from
     `ActionDispatch::IntegrationTest`:
 
     ```ruby
-    # Transactional fixtures do not work with Selenium tests, because Capybara
-    # uses a separate server thread, which the transactions would be hidden
-    # from. We hence use DatabaseCleaner to truncate our test database.
-    DatabaseCleaner.strategy = :truncation
-
     class ActionDispatch::IntegrationTest
       # Make the Capybara DSL available in all integration tests
       include Capybara::DSL
-
-      # Stop ActiveRecord from wrapping tests in transactions
-      self.use_transactional_fixtures = false
-
-      teardown do
-        DatabaseCleaner.clean       # Truncate the database
-        Capybara.reset_sessions!    # Forget the (simulated) browser state
-        Capybara.use_default_driver # Revert Capybara.current_driver to Capybara.default_driver
-      end
     end
     ```
 
@@ -537,7 +515,7 @@ are two options, `Capybara.exact` and `Capybara.match`.
 
 `Capybara.exact` and the `exact` option work together with the `is` expression
 inside the XPath gem. When `exact` is true, all `is` expressions match exactly,
-when it is false, they allow substring matches. Many of the seletors built into
+when it is false, they allow substring matches. Many of the selectors built into
 Capybara use the `is` expression. This way you can specify whether you want to
 allow substring matches or not. `Capybara.exact` is false by default.
 
@@ -564,7 +542,7 @@ four different strategies built into Capybara:
    element is found, a new search is performed which allows partial matches. If
    that search returns multiple matches, an error is raised.
 4. **prefer_exact:** If multiple matches are found, some of which are exact,
-   and some of which are not, then the first eaxctly matching element is
+   and some of which are not, then the first exactly matching element is
    returned.
 
 The default for `Capybara.match` is `:smart`. To emulate the behaviour in
@@ -622,7 +600,7 @@ page.should have_content('baz')
 If clicking on the *foo* link triggers an asynchronous process, such as
 an Ajax request, which, when complete will add the *bar* link to the page,
 clicking on the *bar* link would be expected to fail, since that link doesn't
-exist yet. However Capybara is smart enought to retry finding the link for a
+exist yet. However Capybara is smart enough to retry finding the link for a
 brief period of time before giving up and throwing an error. The same is true of
 the next line, which looks for the content *baz* on the page; it will retry
 looking for that content for a brief time. You can adjust how long this period
@@ -695,7 +673,7 @@ This enables its use in unsupported testing frameworks, and for general-purpose 
 ## Calling remote servers
 
 Normally Capybara expects to be testing an in-process Rack application, but you
-can also use it to talk to a web server running anywhere on the internets, by
+can also use it to talk to a web server running anywhere on the internet, by
 setting app_host:
 
 ```ruby
@@ -784,25 +762,6 @@ find(:row, 3)
 find(:flash_type, :notice)
 ```
 
-You can specify an optional match option which will automatically use the
-selector if it matches the argument:
-
-```ruby
-Capybara.add_selector(:id) do
-  xpath { |id| XPath.descendant[XPath.attr(:id) == id.to_s] }
-  match { |value| value.is_a?(Symbol) }
-end
-```
-
-Now use it like this:
-
-```ruby
-find(:post_123)
-```
-
-This :id selector is already built into Capybara by default, so you don't
-need to add it yourself.
-
 ## Beware the XPath // trap
 
 In XPath the expression // means something very specific, and it might not be what
@@ -887,7 +846,6 @@ additional info about how the underlying driver can be configured.
 To set up a development environment, simply do:
 
 ```bash
-git submodule update --init
 bundle install
 bundle exec rake  # run the test suite
 ```

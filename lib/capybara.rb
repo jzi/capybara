@@ -33,7 +33,6 @@ module Capybara
     #
     # === Configurable options
     #
-    # [asset_host = String]               The hostname for a server from which assets can be loaded, used by save_and_open_page
     # [app_host = String]                 The default host to use when giving a relative URL to visit
     # [always_include_port = Boolean]     Whether the Rack server's port should automatically be inserted into every visited URL (Default: false)
     # [asset_host = String]               Where dynamic assets are hosted - will be prepended to relative asset locations if present (Default: nil)
@@ -287,54 +286,38 @@ module Capybara
   self.default_driver = nil
   self.current_driver = nil
 
-  autoload :DSL,        'capybara/dsl'
-  autoload :Server,     'capybara/server'
-  autoload :Session,    'capybara/session'
-  autoload :Selector,   'capybara/selector'
-  autoload :Query,      'capybara/query'
-  autoload :Result,     'capybara/result'
-  autoload :Helpers,    'capybara/helpers'
-  autoload :VERSION,    'capybara/version'
+  module Driver; end
+  module RackTest; end
+  module Selenium; end
 
-  module Node
-    autoload :Base,       'capybara/node/base'
-    autoload :Simple,     'capybara/node/simple'
-    autoload :Element,    'capybara/node/element'
-    autoload :Document,   'capybara/node/document'
-    autoload :Finders,    'capybara/node/finders'
-    autoload :Matchers,   'capybara/node/matchers'
-    autoload :Actions,    'capybara/node/actions'
-  end
+  require 'capybara/helpers'
+  require 'capybara/session'
+  require 'capybara/dsl'
+  require 'capybara/server'
+  require 'capybara/selector'
+  require 'capybara/query'
+  require 'capybara/result'
+  require 'capybara/version'
 
-  module Driver
-    autoload :Base,     'capybara/driver/base'
-    autoload :Node,     'capybara/driver/node'
+  require 'capybara/node/finders'
+  require 'capybara/node/matchers'
+  require 'capybara/node/actions'
+  require 'capybara/node/simple'
+  require 'capybara/node/base'
+  require 'capybara/node/element'
+  require 'capybara/node/document'
 
-    class Selenium
-      def initialize(*args)
-        raise "Capybara::Driver::Selenium has been renamed to Capybara::Selenium::Driver"
-      end
-    end
+  require 'capybara/driver/base'
+  require 'capybara/driver/node'
 
-    class RackTest
-      def initialize(*args)
-        raise "Capybara::Driver::RackTest has been renamed to Capybara::RackTest::Driver"
-      end
-    end
-  end
+  require 'capybara/rack_test/driver'
+  require 'capybara/rack_test/node'
+  require 'capybara/rack_test/form'
+  require 'capybara/rack_test/browser'
+  require 'capybara/rack_test/css_handlers.rb'
 
-  module RackTest
-    autoload :Driver,  'capybara/rack_test/driver'
-    autoload :Node,    'capybara/rack_test/node'
-    autoload :Form,    'capybara/rack_test/form'
-    autoload :Browser, 'capybara/rack_test/browser'
-    autoload :CSSHandlers, 'capybara/rack_test/css_handlers.rb'
-  end
-
-  module Selenium
-    autoload :Node,    'capybara/selenium/node'
-    autoload :Driver,  'capybara/selenium/driver'
-  end
+  require 'capybara/selenium/node'
+  require 'capybara/selenium/driver'
 end
 
 Capybara.configure do |config|

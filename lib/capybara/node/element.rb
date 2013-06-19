@@ -49,9 +49,8 @@ module Capybara
       # ignored. This behaviour can be overridden by passing `:all` to this
       # method.
       #
-      # @param [:all, :visible]    Whether to return only visible or all text
-      #
-      # @return [String]           The text of the element
+      # @param [:all, :visible] type  Whether to return only visible or all text
+      # @return [String]              The text of the element
       #
       def text(type=nil)
         type ||= :all unless Capybara.ignore_hidden_elements or Capybara.visible_text_only
@@ -213,15 +212,19 @@ module Capybara
 
       def reload
         if @allow_reload
-          reloaded = parent.reload.first(@query.name, @query.locator, @query.options)
-          @base = reloaded.base if reloaded
+          begin
+            reloaded = parent.reload.first(@query.name, @query.locator, @query.options)
+            @base = reloaded.base if reloaded
+          rescue => e
+            raise e unless catch_error?(e)
+          end
         end
         self
       end
 
       def inspect
         %(#<Capybara::Element tag="#{tag_name}" path="#{path}">)
-      rescue NotSupportedByDriverError
+      rescue NotSupportedByDriverError, 'Capybara::Node::Element#inspect'
         %(#<Capybara::Element tag="#{tag_name}">)
       end
     end
